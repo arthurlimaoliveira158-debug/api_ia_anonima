@@ -1,0 +1,72 @@
+// =====================================================================
+// SCHEMA PRISMA - API IA Anônima
+// Equivalente às 4 tabelas do main.py original (SQLAlchemy):
+//   Usuario -> usuarios
+//   DadoPessoal -> dados_pessoais
+//   LogAuditoria -> logs
+//   TentativaLogin -> tentativas_login
+// =====================================================================
+
+// O client Python é gerado a partir daqui.
+// "recursive_type_depth = 5" evita avisos de tipos aninhados (relations).
+generator client {
+  provider = "prisma-client-py"
+  interface = "asyncio"
+  recursive_type_depth = 5
+}
+
+// Banco SQLite, igual ao ia_anonima.db original.
+// Para trocar para PostgreSQL/MySQL no futuro, basta mudar "provider" e "url".
+datasource db {
+  provider = "sqlite"
+  url      = "file:./ia_anonima.db"
+}
+
+// ---------------------------------------------------------------------
+// Tabela de usuários: identificador, nome e hash da senha (bcrypt)
+// ---------------------------------------------------------------------
+model Usuario {
+  id Int @id @default(autoincrement())
+  username String @unique
+  passwordHash String
+
+  dados DadoPessoal[]
+
+  @@map("usuarios")
+}
+
+// ---------------------------------------------------------------------
+// Tabela de dados pessoais: informação cifrada (Fernet) ligada ao usuário
+// ---------------------------------------------------------------------
+model DadoPessoal {
+  id Int @id @default(autoincrement())
+  usuarioId Int
+  dadoCriptografado String
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  @@map("dados_pessoais")
+}
+
+// ---------------------------------------------------------------------
+// Tabela de logs: auditoria de todas as ações relevantes
+// ---------------------------------------------------------------------
+model LogAuditoria {
+  id Int @id @default(autoincrement())
+  acao String
+  dataHora DateTime @default(now())
+
+  @@map("logs")
+}
+
+// ---------------------------------------------------------------------
+// Tabela de tentativas de login: controle de força bruta
+// ---------------------------------------------------------------------
+model TentativaLogin {
+  id Int @id @default(autoincrement())
+  username String
+  tentativas Int @default(1)
+  bloqueadoAte DateTime?
+
+  @@map("tentativas_login")
+}
