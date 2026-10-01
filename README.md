@@ -112,6 +112,11 @@ navegador) fica disponível em `/docs` assim que o servidor estiver rodando.
    ```bash
    uvicorn main:app --reload
    ```
+Ou usa esse se o primeiro não funcionar
+
+   ```bash
+   python -m uvicorn main:app --reload
+   ```
 
 7. Acesse **http://127.0.0.1:8000/docs** no navegador para ver e testar
    todas as rotas pela interface interativa (Swagger).
