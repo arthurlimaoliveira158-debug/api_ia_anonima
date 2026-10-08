@@ -21,8 +21,10 @@ class DetetorAnomalias:
         if "FALHA DE LOGIN" in acao_upper: return 15
         if "AUDITORIA" in acao_upper: return 5  # Consultar logs frequentemente é suspeito
         if "CONSULTA" in acao_upper: return 2
+        if "PANICO_USUARIO" in acao_upper: return 100 # Peso altíssimo, evento crítico!
+        if "BLOQUEIO" in acao_upper: return 20
         return 1  # Cadastro, Inserção ou Login bem sucedido
-
+            
     async def analisar_logs(self, db: Prisma):
         # Busca mais logs para um treinamento mais robusto
         logs = await db.logauditoria.find_many(order={"dataHora": "desc"}, take=2000)
